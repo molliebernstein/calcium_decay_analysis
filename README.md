@@ -70,14 +70,14 @@ Install with:
 Repository Structure (example)
 -----------------------------
 
-README.txt
-requirements.txt
-preprocess.py
-calcium_decay_analysis.py
-preprocess.ipynb
-calcium_decay_analysis.ipynb
-sgRosa26_sgTrpc6_1uM_NTS_puffing_master_sheet.xlsx - raw_sgRosa26.csv
-sgRosa26_30uM_DHPG_puff_processed.csv
+- README.txt
+- requirements.txt
+- preprocess.py
+- calcium_decay_analysis.py
+- preprocess.ipynb
+- calcium_decay_analysis.ipynb
+- sgRosa26_sgTrpc6_1uM_NTS_puffing_master_sheet.xlsx - raw_sgRosa26.csv
+- sgRosa26_30uM_DHPG_puff_processed.csv
 
 ----------------------------------------------------------------
 Contact & Author
