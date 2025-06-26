@@ -1,7 +1,7 @@
 Calcium Imaging Preprocessing and Analysis
 ==========================================
 
-This repository contains tools for preprocessing and analyzing calcium imaging data from multiple subjects/cells.  
+This repository contains tools for preprocessing and analyzing ex vivo calcium imaging data from multiple subjects/cells.  
 You will find scripts and notebook examples for:
 
 - **Extracting fluorescence trace windows around a puff event** (preprocessing)
