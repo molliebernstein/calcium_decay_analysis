@@ -24,7 +24,7 @@ Two example CSV files are provided:
 Scripts Included
 ----------------
 
-1. **subset_preprocess.py**
+1. **preprocess.py**
     - Extracts a window of 500 values before and 600 after the puff event for each subject (column).
     - Input format: CSV where first row in each column is the puff index, rows 2+ are fluorescence values.
     - Puff event is centered at index 501 in the output.
