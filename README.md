@@ -86,3 +86,5 @@ Contact & Author
 Questions? Open an issue or pull request on GitHub.
 
 Author: Mollie Bernstein, 2025
+
+mollie.bernstein@gmail.com
