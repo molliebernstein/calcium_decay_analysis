@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+flake8.log
+.ipynb_checkpoints/
+*.egg-info/

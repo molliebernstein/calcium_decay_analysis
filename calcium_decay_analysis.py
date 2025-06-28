@@ -19,7 +19,9 @@ Requirements:
     scipy
 
 Usage:
-    python calcium_decay_analysis.py --file sgRosa26_30uM_DHPG_puff_processed.csv --sampling_rate 5.0 --puff_idx 505
+    python calcium_decay_analysis.py \
+        --file sgRosa26_30uM_DHPG_puff_processed.csv \
+        --sampling_rate 5.0 --puff_idx 505
 """
 
 import numpy as np
@@ -28,9 +30,11 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import argparse
 
+
 def one_phase_decay(t, A, k, C):
     """One-phase exponential decay function."""
     return A * np.exp(-k * t) + C
+
 
 def load_data(file_name):
     """Load CSV file and clean up infinities/NaNs."""
@@ -38,19 +42,22 @@ def load_data(file_name):
     data = data.replace([np.inf, -np.inf], np.nan).dropna()
     return data.values
 
+
 def plot_mean_sem(time, mean, sem, color, ylabel, title, label):
     """Plot mean ± SEM as fill."""
     plt.figure(figsize=(10, 6))
-    plt.fill_between(time, mean - sem, mean + sem, color=color, alpha=0.3,
-                     label='SEM')
-    plt.plot(time, mean, color + '-', label=label)
-    plt.xlabel('Time (s)')
+    plt.fill_between(
+        time, mean - sem, mean + sem, color=color, alpha=0.3, label="SEM"
+    )
+    plt.plot(time, mean, color + "-", label=label)
+    plt.xlabel("Time (s)")
     plt.ylabel(ylabel)
     plt.title(title)
     plt.legend()
     plt.tight_layout()
     plt.show()
     plt.close()
+
 
 def fit_one_phase_decay(time, raw):
     """Fit one-phase exponential decay to each cell trace."""
@@ -64,13 +71,16 @@ def fit_one_phase_decay(time, raw):
         C_guess = y_data[-1]
         p0 = [A_guess, k_guess, C_guess]
         try:
-            popt, _ = curve_fit(one_phase_decay, time, y_data, p0=p0, maxfev=10000)
+            popt, _ = curve_fit(
+                one_phase_decay, time, y_data, p0=p0, maxfev=10000
+            )
         except RuntimeError:
             print(f"Fit did not converge for cell {i}")
             popt = [np.nan, np.nan, np.nan]
         params[i, :] = popt
         fitted_curves[:, i] = one_phase_decay(time, *popt)
     return params, fitted_curves
+
 
 def calculate_zscores(corrected_signal, puff_idx, fs):
     """Calculate z-scores using 10s pre-puff as baseline."""
@@ -88,6 +98,7 @@ def calculate_zscores(corrected_signal, puff_idx, fs):
             zscores[:, i] = (corrected_signal[:, i] - base_mean) / base_std
     return zscores
 
+
 def main(args):
     # --- Load Data ---
     raw = load_data(args.file)
@@ -97,7 +108,15 @@ def main(args):
     # --- Plot Raw Signal ---
     mean_raw = raw.mean(axis=1)
     sem_raw = raw.std(axis=1, ddof=1) / np.sqrt(n_cells)
-    plot_mean_sem(time, mean_raw, sem_raw, 'k', 'Calcium Fluorescence', 'Raw Calcium Fluorescence Signal (Mean ± SEM)', 'Mean Raw Signal')
+    plot_mean_sem(
+        time,
+        mean_raw,
+        sem_raw,
+        "k",
+        "Calcium Fluorescence",
+        "Raw Calcium Fluorescence Signal (Mean ± SEM)",
+        "Mean Raw Signal",
+    )
 
     # --- Fit One-Phase Decay ---
     params, fitted_curves = fit_one_phase_decay(time, raw)
@@ -108,19 +127,60 @@ def main(args):
     # Plot mean fitted decay
     mean_fit = fitted_curves.mean(axis=1)
     sem_fit = fitted_curves.std(axis=1, ddof=1) / np.sqrt(n_cells)
-    plot_mean_sem(time, mean_fit, sem_fit, 'r', 'Fitted Decay', 'Fitted One‐Phase Decay (Mean ± SEM)', 'Mean Fitted Decay')
+    plot_mean_sem(
+        time,
+        mean_fit,
+        sem_fit,
+        "r",
+        "Fitted Decay",
+        "Fitted One‐Phase Decay (Mean ± SEM)",
+        "Mean Fitted Decay",
+    )
 
     # --- Z-scores (10s baseline before puff) ---
-    zscores = calculate_zscores(corrected_signal, args.puff_idx, args.sampling_rate)
+    zscores = calculate_zscores(
+        corrected_signal, args.puff_idx, args.sampling_rate
+    )
 
     mean_z = zscores.mean(axis=1)
     sem_z = zscores.std(axis=1, ddof=1) / np.sqrt(n_cells)
-    plot_mean_sem(time, mean_z, sem_z, 'g', 'Z-score', 'Z-Scored Signal (Mean ± SEM)', 'Mean Z-score')
+    plot_mean_sem(
+        time,
+        mean_z,
+        sem_z,
+        "g",
+        "Z-score",
+        "Z-Scored Signal (Mean ± SEM)",
+        "Mean Z-score",
+    )
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Analyze calcium imaging trace with decay correction and z-score normalization.")
-    parser.add_argument('--file', type=str, required=True, help="Path to CSV file (no header).")
-    parser.add_argument('--sampling_rate', type=float, default=5.0, help="Sampling rate in Hz. Default: 5.0")
-    parser.add_argument('--puff_idx', type=int, default=505, help="Index of puff/stimulus. Default: 505")
+
+def cli():
+    """Command-line interface for the analysis module."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Analyze calcium imaging trace with decay correction and "
+            "z-score normalization."
+        )
+    )
+    parser.add_argument(
+        "--file", type=str, required=True, help="Path to CSV file (no header)."
+    )
+    parser.add_argument(
+        "--sampling_rate",
+        type=float,
+        default=5.0,
+        help="Sampling rate in Hz. Default: 5.0",
+    )
+    parser.add_argument(
+        "--puff_idx",
+        type=int,
+        default=505,
+        help="Index of puff/stimulus. Default: 505",
+    )
     args = parser.parse_args()
     main(args)
+
+
+if __name__ == "__main__":
+    cli()
