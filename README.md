@@ -66,6 +66,9 @@ Python 3.x with:
 Install with:
     pip install -r requirements.txt
 
+Alternatively, install the package in editable mode:
+    pip install -e .
+
 ----------------------------------------------------------------
 Repository Structure (example)
 -----------------------------
