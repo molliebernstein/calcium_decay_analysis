@@ -2,3 +2,5 @@ numpy
 pandas
 matplotlib
 scipy
+pytest
+flake8
