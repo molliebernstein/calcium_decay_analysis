@@ -41,14 +41,16 @@ def load_data(file_name):
 def plot_mean_sem(time, mean, sem, color, ylabel, title, label):
     """Plot mean ± SEM as fill."""
     plt.figure(figsize=(10, 6))
-    plt.fill_between(time, mean - sem, mean + sem, alpha=0.3, label='SEM')
-    plt.plot(time, mean, color+'-', label=label)
+    plt.fill_between(time, mean - sem, mean + sem, color=color, alpha=0.3,
+                     label='SEM')
+    plt.plot(time, mean, color + '-', label=label)
     plt.xlabel('Time (s)')
     plt.ylabel(ylabel)
     plt.title(title)
     plt.legend()
     plt.tight_layout()
     plt.show()
+    plt.close()
 
 def fit_one_phase_decay(time, raw):
     """Fit one-phase exponential decay to each cell trace."""
@@ -72,15 +74,18 @@ def fit_one_phase_decay(time, raw):
 
 def calculate_zscores(corrected_signal, puff_idx, fs):
     """Calculate z-scores using 10s pre-puff as baseline."""
-    baseline_start = puff_idx - int(10 * fs)
-    baseline_end = puff_idx
+    baseline_start = max(0, puff_idx - int(10 * fs))
+    baseline_end = min(corrected_signal.shape[0], puff_idx)
     n_points, n_cells = corrected_signal.shape
     zscores = np.zeros_like(corrected_signal)
     for i in range(n_cells):
         baseline = corrected_signal[baseline_start:baseline_end, i]
         base_mean = baseline.mean()
         base_std = baseline.std(ddof=1)
-        zscores[:, i] = (corrected_signal[:, i] - base_mean) / base_std
+        if base_std == 0 or np.isnan(base_std):
+            zscores[:, i] = np.nan
+        else:
+            zscores[:, i] = (corrected_signal[:, i] - base_mean) / base_std
     return zscores
 
 def main(args):
